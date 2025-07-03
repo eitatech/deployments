@@ -3,11 +3,6 @@ kind: Job
 metadata:
   name: vault-init-unseal-job
   namespace: vault
-  annotations:
-    # HOOK: Executa este Job após uma sincronização bem-sucedida
-    argocd.argoproj.io/hook: PostSync
-    # HOOK: Deleta este Job após a execução bem-sucedida para manter o cluster limpo
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   template:
     spec:
