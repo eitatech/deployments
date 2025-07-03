@@ -12,10 +12,9 @@ spec:
     namespace: argocd
   source:
     repoURL: https://github.com/eitatech/deployments.git
-    path: argocd/apps/vault
+    path: argocd/apps/vault/applications
     targetRevision: main
     directory:
-      include: "vault-application-dev.yaml,rbac-application.yaml,init-unseal-job-application.yaml"
       recurse: false
   syncPolicy:
     automated:
