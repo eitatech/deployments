@@ -33,7 +33,7 @@ spec:
           kubectl wait --for=condition=PodReadyToStartContainers pod/${POD_NAME} -n ${NS} --timeout=300s
           
           echo "[INFO] Aguardando o Vault responder aos comandos..."
-          until kubectl exec ${POD_NAME} -n ${NS} -- vault status >/dev/null 2>&1; do
+          until kubectl exec ${POD_NAME} -n ${NS} -- vault status >/dev/null 2>&1 || [ $? -eq 2 ]; do
             echo "[INFO] Vault ainda não está respondendo, aguardando..."
             sleep 5
           done
