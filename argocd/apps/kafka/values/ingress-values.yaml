@@ -1,4 +1,4 @@
-domain: localhost
+domain: cluster.eita.cloud
 kafka:
   service:
     name: cluster-kafka-external-bootstrap
