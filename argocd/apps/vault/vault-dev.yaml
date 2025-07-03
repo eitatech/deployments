@@ -16,6 +16,7 @@ spec:
     targetRevision: main
     directory:
       include: "vault-application-dev.yaml,rbac-application.yaml,init-unseal-job-application.yaml"
+      exclude: "rbac.yaml,init-unseal-job.yaml"
       recurse: false
   syncPolicy:
     automated:
