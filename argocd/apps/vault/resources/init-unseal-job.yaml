@@ -29,8 +29,15 @@ spec:
           SECRET_NAME="vault-keys"
           VAULT_ADDR="http://127.0.0.1:8200"
 
-          echo "[INFO] Aguardando o pod ${POD_NAME} ficar pronto..."
-          kubectl wait --for=condition=Ready pod/${POD_NAME} -n ${NS} --timeout=300s
+          echo "[INFO] Aguardando o pod ${POD_NAME} estar rodando..."
+          kubectl wait --for=condition=PodReadyToStartContainers pod/${POD_NAME} -n ${NS} --timeout=300s
+          
+          echo "[INFO] Aguardando o Vault responder aos comandos..."
+          until kubectl exec ${POD_NAME} -n ${NS} -- vault status >/dev/null 2>&1; do
+            echo "[INFO] Vault ainda não está respondendo, aguardando..."
+            sleep 5
+          done
+          echo "[INFO] Vault está respondendo!"
 
           echo "[INFO] Verificando se o Vault já foi inicializado (procurando pelo segredo '${SECRET_NAME}')..."
           if kubectl get secret ${SECRET_NAME} -n ${NS} >/dev/null 2>&1; then
