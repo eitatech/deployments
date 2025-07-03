@@ -2,18 +2,18 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   # Nome específico para o ambiente
-  name: vault-dev
+  name: vault
   namespace: argocd
 spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
     # Namespace específico para o ambiente, para isolamento
-    namespace: vault-dev
+    namespace: vault
   
   # A fonte dos nossos manifestos é o nosso próprio repositório Git
   source:
-    repoURL: https://github.com/seu-usuario/meu-repo-git.git # <-- MUDE PARA O SEU REPO
+    repoURL: https://github.com/eitatech/deployments.git
     # O path aponta para o diretório que contém os hooks e os values
     path: argocd/apps/vault 
     targetRevision: main
@@ -23,9 +23,13 @@ spec:
       # O nome do release no Kubernetes
       releaseName: vault
       
+      # Especificar o chart remoto
+      chart: vault
+      repo: https://helm.releases.hashicorp.com
+      
       # AQUI ESTÁ A LÓGICA DE SOBREPOSIÇÃO:
       # ArgoCD irá mesclar esses arquivos. 'dev.yaml' sobrescreve 'base.yaml'.
-      valuesFiles:
+      valueFiles:
       - values/base.yaml
       - values/dev.yaml
       
@@ -43,4 +47,4 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true # Garante que o namespace 'vault-dev' seja criado
+    - CreateNamespace=true # Garante que o namespace 'vault' seja criado
