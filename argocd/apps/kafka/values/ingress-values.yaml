@@ -1,0 +1,8 @@
+domain: localhost
+kafka:
+  service:
+    name: cluster-kafka-external-bootstrap
+    port: 9094
+  ingress:
+    className: traefik
+    entrypoints: web

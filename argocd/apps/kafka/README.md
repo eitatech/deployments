@@ -59,6 +59,33 @@ Ou se você clonou o repositório:
 kubectl apply -f argocd/apps/kafka/kafka-dev.yaml
 ```
 
+### Deploy com Domínio Customizado
+
+Por padrão, o Ingress usa `kafka.localhost`. Para usar um domínio personalizado:
+
+#### Opção 1: Usando a CLI do ArgoCD
+
+```bash
+argocd app create kafka-dev \
+  --repo https://github.com/eitatech/deployments.git \
+  --path argocd/apps/kafka/applications \
+  --dest-server https://kubernetes.default.svc \
+  --dest-namespace argocd \
+  --revision main \
+  --sync-policy automated \
+  --auto-prune \
+  --self-heal \
+  --directory-recurse \
+  --helm-set domain=meudominio.com
+```
+
+#### Opção 2: Editando o arquivo de values
+
+1. Edite o arquivo `values/ingress-values.yaml` no seu fork do repositório
+2. Altere a linha `domain: localhost` para `domain: seudominio.com`
+3. Faça commit e push das alterações
+4. Aplique a aplicação
+
 ### Verificação
 
 1. Verifique os Applications criados:
@@ -100,13 +127,23 @@ kubectl apply -f argocd/apps/kafka/kafka-dev.yaml
 - **TLS**: `<NODE_IP>:31096`
 
 ### Via Ingress
-- **HTTP**: `kafka.localhost` (precisa configurar DNS ou /etc/hosts)
+- **HTTP**: `kafka.${DOMAIN}` (onde ${DOMAIN} é o domínio configurado)
 
 ## Configuração do DNS
 
 Para usar o Ingress, adicione no `/etc/hosts`:
 ```
+<NODE_IP>  kafka.${DOMAIN}
+```
+
+Exemplo com domínio padrão:
+```
 <NODE_IP>  kafka.localhost
+```
+
+Exemplo com domínio customizado:
+```
+<NODE_IP>  kafka.meudominio.com
 ```
 
 ## Comandos Úteis

@@ -8,7 +8,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   rules:
-    - host: kafka.localhost
+    - host: "kafka.{{.Values.domain}}"
       http:
         paths:
           - path: /

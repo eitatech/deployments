@@ -12,10 +12,14 @@ spec:
     namespace: kafka
   source:
     repoURL: https://github.com/eitatech/deployments.git
-    path: argocd/apps/kafka/resources
+    path: argocd/apps/kafka/ingress
     targetRevision: main
-    directory:
-      include: "kafka-ingress.yaml"
+    helm:
+      valueFiles:
+        - ../values/ingress-values.yaml
+      parameters:
+        - name: domain
+          value: "localhost"  # Este valor pode ser sobrescrito ao criar a aplicação
   syncPolicy:
     automated:
       prune: true
