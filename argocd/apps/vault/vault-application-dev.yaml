@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   # Nome específico para o ambiente
-  name: vault
+  name: vault-dev
   namespace: argocd
 spec:
   project: default
