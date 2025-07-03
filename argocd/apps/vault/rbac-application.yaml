@@ -12,7 +12,7 @@ spec:
     namespace: vault
   source:
     repoURL: https://github.com/eitatech/deployments.git
-    path: argocd/apps/vault
+    path: argocd/apps/vault/resources
     targetRevision: main
     directory:
       include: "rbac.yaml"
