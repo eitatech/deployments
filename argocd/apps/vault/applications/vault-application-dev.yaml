@@ -13,36 +13,80 @@ spec:
     # Namespace específico para o ambiente, para isolamento
     namespace: vault
   
-  # A fonte dos nossos manifestos é o nosso próprio repositório Git
+  # A fonte é o chart Helm remoto da HashiCorp
   source:
-    repoURL: https://github.com/eitatech/deployments.git
-    # O path aponta para o diretório que contém os hooks e os values
-    path: argocd/apps/vault 
-    targetRevision: main
+    repoURL: https://helm.releases.hashicorp.com
+    chart: vault
+    targetRevision: 0.30.0
 
     # Configuração do Helm
     helm:
       # O nome do release no Kubernetes
       releaseName: vault
       
-      # Especificar o chart remoto
-      chart: vault
-      repo: https://helm.releases.hashicorp.com
-      
-      # AQUI ESTÁ A LÓGICA DE SOBREPOSIÇÃO:
-      # ArgoCD irá mesclar esses arquivos. 'dev.yaml' sobrescreve 'base.yaml'.
-      valueFiles:
-      - values/base.yaml
-      - values/dev.yaml
-      
-      # Precisamos dizer ao ArgoCD onde encontrar o chart do Vault,
-      # já que não está no nosso repositório.
-      # Para isso, o repo Helm da HashiCorp deve ser adicionado ao ArgoCD.
-      # (Se você já fez, não precisa fazer de novo)
-      # $ argocd repo add https://helm.releases.hashicorp.com --type helm --name hashicorp
-      #
-      # (Esta parte é implícita se você usar um Chart.yaml local, mas para
-      # usar um chart remoto com values locais, esta é a abordagem)
+      # Values personalizados inline (copiados dos arquivos base.yaml e dev.yaml)
+      values: |
+        global:
+          tlsDisable: true
+        
+        server:
+          hostNetwork: true
+          dnsPolicy: ClusterFirstWithHostNet
+          ha:
+            enabled: false
+          seal:
+            type: "shamir"
+          ui:
+            serviceType: "NodePort"
+            serviceNodePort: 30800
+          service:
+            type: NodePort
+            nodePort: 30820
+          standalone:
+            enabled: true
+            config: |
+              ui = true
+              
+              listener "tcp" {
+                address = "0.0.0.0:8200"
+                tls_disable = true
+              }
+              
+              storage "file" {
+                path = "/vault/data"
+              }
+              
+              api_addr = "http://$(POD_IP):8200"
+              cluster_addr = "http://$(POD_IP):8201"
+          
+          extraEnvironmentVars:
+            VAULT_ADDR: http://127.0.0.1:8200
+            POD_IP: "$(POD_IP)"
+          
+          dataStorage:
+            size: 5Gi
+          
+          logLevel: "info"
+          logFormat: "standard"
+          
+          readinessProbe:
+            enabled: true
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+        
+        injector:
+          enabled: true
 
   syncPolicy:
     automated:
