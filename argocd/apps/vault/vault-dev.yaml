@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault-app-dev
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  source:
+    repoURL: https://github.com/eitatech/deployments.git
+    path: argocd/apps/vault
+    targetRevision: main
+    directory:
+      include: vault-application-dev.yaml,rbac-application.yaml,init-unseal-job-application.yaml
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
